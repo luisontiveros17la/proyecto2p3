@@ -1,0 +1,43 @@
+.main-container {
+  background-color: #b0e0e6; /* Azul claro */
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  transition: background-color 0.5s ease;
+}
+
+.dark-mode {
+  background-color: #1e1e1e;
+  color: #ffffff;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Encabezado del chat con transición */
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  padding: 10px 15px;
+  border-bottom: 2px solid #ddd;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.custom-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.chat-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.message-bubble {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
