@@ -4,33 +4,44 @@ import { v4 as uuidv4 } from 'uuid';
 import ChatList from './components/ChatList';
 import ChatWindow from './components/ChatWindow';
 import ChatInput from './components/ChatInput';
+import './App.css';
 
 const socket = io('http://localhost:5000');
 const userId = uuidv4();
 
-const contactos = ['DimaselGei', 'Contacto 2', 'Contacto 3'];
+// Definimos solo 3 contactos: "Contacto 1", "Contacto 2" y "Contacto 3"
+const contactos = [
+  'Contacto 1', 
+  'Contacto 2', 
+  'Contacto 3'
+];
+
+// Estado simulado para cada contacto (true = "En línea", false = "Desconectado")
+const contactStatuses = {
+  'Contacto 1': true,
+  'Contacto 2': false,
+  'Contacto 3': true
+};
 
 function App() {
   const [chats, setChats] = useState({});
   const [selectedChat, setSelectedChat] = useState(contactos[0]);
   const [message, setMessage] = useState('');
-  const [darkMode, setDarkMode] = useState(false);
-
-  const toggleDarkMode = () => {
-    // Agrega la clase para la transición y espera 300ms antes de cambiar el modo
-    document.body.classList.add('transitioning');
-    setTimeout(() => {
-      setDarkMode(!darkMode);
-      document.body.classList.remove('transitioning');
-    }, 300);
-  };
 
   useEffect(() => {
+    // Escucha de mensajes provenientes del servidor.
     socket.on('message', ({ contact, msg }) => {
-      setChats((prevChats) => ({
-        ...prevChats,
-        [contact]: [...(prevChats[contact] || []), msg],
-      }));
+      // Solo agregamos el mensaje si no existe ya (comprobamos por id)
+      setChats((prevChats) => {
+        const currentMessages = prevChats[contact] || [];
+        if (currentMessages.some(m => m.id === msg.id)) {
+          return prevChats;
+        }
+        return {
+          ...prevChats,
+          [contact]: [...currentMessages, msg]
+        };
+      });
     });
 
     return () => {
@@ -41,28 +52,70 @@ function App() {
   const sendMessage = () => {
     if (message.trim()) {
       const horaActual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const mensajeConHora = { userId, text: message, time: horaActual };
-
-      socket.emit('message', { contact: selectedChat, msg: mensajeConHora });
+      // Creamos un mensaje con un id único y estado inicial "sent"
+      const newMessage = { 
+        id: uuidv4(), 
+        userId, 
+        text: message, 
+        time: horaActual, 
+        status: 'sent' 
+      };
+      // Emitir el mensaje al servidor
+      socket.emit('message', { contact: selectedChat, msg: newMessage });
+      
+      // Actualización local optimista
+      setChats((prevChats) => ({
+        ...prevChats,
+        [selectedChat]: [...(prevChats[selectedChat] || []), newMessage]
+      }));
+      
+      // Limpiamos el campo de mensaje
       setMessage('');
+
+      // Simula que a los 2 segundos el mensaje cambia a "delivered"
+      setTimeout(() => {
+        setChats((prevChats) => {
+          const updatedMessages = [...(prevChats[selectedChat] || [])];
+          if (updatedMessages.length > 0) {
+            updatedMessages[updatedMessages.length - 1].status = 'delivered';
+          }
+          return { ...prevChats, [selectedChat]: updatedMessages };
+        });
+      }, 2000);
+
+      // Simula que a los 4 segundos el mensaje cambia a "read"
+      setTimeout(() => {
+        setChats((prevChats) => {
+          const updatedMessages = [...(prevChats[selectedChat] || [])];
+          if (updatedMessages.length > 0) {
+            updatedMessages[updatedMessages.length - 1].status = 'read';
+          }
+          return { ...prevChats, [selectedChat]: updatedMessages };
+        });
+      }, 4000);
     }
   };
 
   return (
-    <div className={`main-container ${darkMode ? 'dark-mode' : ''}`}>
-      <button className="toggle-dark-mode" onClick={toggleDarkMode}>
-        {darkMode ? 'Modo Claro' : 'Modo Oscuro'}
-      </button>
-      <div className="container mt-4">
-        <div className="row">
-          <div className="col-md-4">
-            <ChatList contactos={contactos} setSelectedChat={setSelectedChat} />
-          </div>
-          <div className="col-md-8">
-            <ChatWindow messages={chats[selectedChat] || []} userId={userId} selectedChat={selectedChat} />
-            <ChatInput message={message} setMessage={setMessage} sendMessage={sendMessage} />
-          </div>
-        </div>
+    <div className="app-container">
+      <div className="sidebar">
+        <ChatList 
+          contactos={contactos} 
+          setSelectedChat={setSelectedChat} 
+        />
+      </div>
+      <div className="chat-area">
+        <ChatWindow 
+          messages={chats[selectedChat] || []} 
+          userId={userId} 
+          selectedChat={selectedChat}
+          status={contactStatuses[selectedChat] ? 'En línea' : 'Desconectado'}
+        />
+        <ChatInput 
+          message={message} 
+          setMessage={setMessage} 
+          sendMessage={sendMessage} 
+        />
       </div>
     </div>
   );

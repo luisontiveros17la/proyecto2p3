@@ -1,0 +1,21 @@
+/* src/App.css */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Sidebar (lista de contactos) */
+.sidebar {
+  width: 300px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+}
+
+/* Área del chat */
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
