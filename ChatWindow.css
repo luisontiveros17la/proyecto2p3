@@ -1,43 +1,82 @@
-.main-container {
-  background-color: #b0e0e6; /* Azul claro */
-  min-height: 100vh;
+/* src/components/ChatWindow.css */
+.chat-window {
+  flex: 1;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  transition: background-color 0.5s ease;
+  flex-direction: column;
+  background-color: #ffffff;
 }
 
-.dark-mode {
-  background-color: #1e1e1e;
-  color: #ffffff;
-  transition: background-color 0.5s ease, color 0.5s ease;
-}
-
-/* Encabezado del chat con transición */
 .chat-header {
+  padding: 15px;
+  background-color: #075E54;
+  color: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.chat-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-status {
+  font-size: 0.9rem;
+  color: #c2e0c6;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 15px;
+  background-color: #e5ddd5;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  margin-bottom: 15px;
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.sent {
+  align-self: flex-end;
+  background-color: #dcf8c6;
+}
+
+.received {
+  align-self: flex-start;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+}
+
+.message-info {
+  font-size: 0.75rem;
+  color: #555;
+  margin-top: 5px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 22px;
-  font-weight: bold;
-  color: #333;
-  padding: 10px 15px;
-  border-bottom: 2px solid #ddd;
-  transition: background-color 0.5s ease, color 0.5s ease;
+  justify-content: flex-end;
 }
 
-.custom-logo {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
+.message-status {
+  margin-left: 10px;
 }
 
-.chat-title {
-  font-size: 20px;
-  font-weight: bold;
+.check {
+  font-size: 1em;
 }
 
-.message-bubble {
-  transition: background-color 0.5s ease, color 0.5s ease;
+.sent-check {
+  color: grey;
+}
+
+.delivered-check {
+  color: grey;
+}
+
+.read-check {
+  color: #34B7F1;
 }

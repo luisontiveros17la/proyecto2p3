@@ -1,20 +1,36 @@
+// src/components/ChatWindow.js
 import React from 'react';
-import { IoLogoWhatsapp } from "react-icons/io";
 import './ChatWindow.css';
 
-function ChatWindow({ messages, userId, selectedChat }) {
+function ChatWindow({ messages, userId, selectedChat, status }) {
   return (
     <div className="chat-window">
       <div className="chat-header">
-        <IoLogoWhatsapp size={30} color="#25D366" />
-        <span className="chat-title">{selectedChat}</span>
-      </div>
-      {messages.map((msg, index) => (
-        <div key={index} className={`message-container ${msg.userId === userId ? 'sent' : 'received'}`}>
-          <div className="message-bubble">{msg.text}</div>
-          <div className="timestamp">{msg.time}</div>
+        <div className="chat-header-info">
+          <h4>{selectedChat}</h4>
+          <span className="contact-status">{status}</span>
         </div>
-      ))}
+      </div>
+      <div className="chat-messages">
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            className={`message ${msg.userId === userId ? 'sent' : 'received'}`}
+          >
+            <div className="message-text">{msg.text}</div>
+            <div className="message-info">
+              <span className="message-time">{msg.time}</span>
+              {msg.userId === userId && (
+                <span className="message-status">
+                  {msg.status === 'sent' && <span className="check sent-check">✓</span>}
+                  {msg.status === 'delivered' && <span className="check delivered-check">✓✓</span>}
+                  {msg.status === 'read' && <span className="check read-check">✓✓</span>}
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

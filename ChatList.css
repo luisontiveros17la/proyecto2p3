@@ -1,0 +1,29 @@
+/* src/components/ChatList.css */
+.chat-list {
+  padding: 10px;
+  height: 100vh;
+  overflow-y: auto;
+  background-color: #f8f9fa;
+}
+
+.chat-list-search {
+  margin-bottom: 10px;
+}
+
+.chat-list-search input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.chat-list-item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.chat-list-item:hover {
+  background-color: #e9ecef;
+}

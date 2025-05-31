@@ -1,19 +1,24 @@
+// src/components/ChatInput.js
 import React from 'react';
 import './ChatInput.css';
 
 function ChatInput({ message, setMessage, sendMessage }) {
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  };
+
   return (
-    <div className="input-group">
+    <div className="chat-input">
       <input
         type="text"
+        placeholder="Escribe un mensaje..."
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        className="form-control"
-        placeholder="Escribe un mensaje..."
+        onKeyPress={handleKeyPress}
       />
-      <button className="btn-send" type="button" onClick={sendMessage}>
-        Enviar
-      </button>
+      <button onClick={sendMessage}>Enviar</button>
     </div>
   );
 }
