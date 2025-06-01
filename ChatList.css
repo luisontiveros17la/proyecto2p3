@@ -5,6 +5,8 @@
   border-right: 1px solid #ddd;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  position: relative; /* Para posicionar el menú de configuración */
 }
 
 .chat-list-header {
@@ -40,9 +42,86 @@
 
 .contact-info {
   margin-left: 10px;
+  flex-grow: 1;
 }
 
 .contact-name {
   font-weight: bold;
   font-size: 1rem;
+}
+
+/* Botones de acción sobre cada contacto */
+.contact-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.action-btn:hover {
+  color: #000;
+}
+
+/* Footer del sidebar */
+.chat-list-footer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid #ddd;
+  background-color: #f8f9fa;
+}
+
+.footer-icon {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #555;
+  cursor: pointer;
+}
+
+.footer-icon:hover {
+  color: #000;
+}
+
+/* Indicador visual para filtro activo */
+.footer-icon.active {
+  color: #128C7E;
+}
+
+/* Menú de configuración (se muestra al presionar el ícono de settings) */
+.settings-menu {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  width: 280px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  z-index: 100;
+  padding: 10px 0;
+}
+
+.settings-menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.settings-menu-item:hover {
+  background-color: #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+/* Para diferenciar el item de cerrar sesión */
+.settings-menu-item.logout {
+  color: red;
+  font-weight: bold;
 }

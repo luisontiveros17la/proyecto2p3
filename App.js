@@ -10,33 +10,37 @@ import './App.css';
 const socket = io('http://localhost:5000');
 const userId = uuidv4();
 
-// Usamos tres contactos genéricos (esto es lo que “no copias” de tu celular)
-const contacts = ['Contacto 1', 'Contacto 2', 'Contacto 3'];
+// Definimos los contactos iniciales con sus propiedades
+const initialContacts = [
+  { name: 'Contacto 1', favorite: false, archived: false },
+  { name: 'Contacto 2', favorite: false, archived: false },
+  { name: 'Contacto 3', favorite: false, archived: false },
+];
 
-// Estado simulado para cada contacto: true = "En línea", false = "Desconectado"
+// Estado simulado de "En línea" o "Desconectado" para cada contacto
 const contactStatuses = {
-  'Dimas': true,
+  'Contacto 1': true,
   'Contacto 2': false,
   'Contacto 3': true,
 };
 
 function App() {
+  const [contacts, setContacts] = useState(initialContacts);
+  const [selectedContact, setSelectedContact] = useState(initialContacts[0].name);
   const [chats, setChats] = useState({});
-  const [selectedContact, setSelectedContact] = useState(contacts[0]);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    // Escucha de mensajes recibidos vía Socket.io
     socket.on('message', ({ contact, msg }) => {
       setChats((prevChats) => {
         const currentMessages = prevChats[contact] || [];
-        // Si ya existe el mensaje (por id único) no se vuelve a agregar
+        // Evitamos duplicados comprobando por id
         if (currentMessages.some((m) => m.id === msg.id)) return prevChats;
-        return {
-          ...prevChats,
-          [contact]: [...currentMessages, msg],
-        };
+        return { ...prevChats, [contact]: [...currentMessages, msg] };
       });
     });
+
     return () => {
       socket.off('message');
     };
@@ -46,16 +50,14 @@ function App() {
     if (message.trim()) {
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const newMsg = { id: uuidv4(), userId, text: message, time, status: 'sent' };
-      // Emitir el mensaje al servidor
       socket.emit('message', { contact: selectedContact, msg: newMsg });
-      // Actualización local (optimista) del chat
       setChats((prevChats) => {
         const msgs = prevChats[selectedContact] || [];
         return { ...prevChats, [selectedContact]: [...msgs, newMsg] };
       });
       setMessage('');
 
-      // Simulación: a los 2 segundos se actualiza el estado a "delivered"
+      // Simulación: Actualización del estado del mensaje
       setTimeout(() => {
         setChats((prevChats) => {
           const msgs = prevChats[selectedContact] || [];
@@ -64,7 +66,6 @@ function App() {
           return { ...prevChats, [selectedContact]: [...msgs] };
         });
       }, 2000);
-      // Simulación: a los 4 segundos se actualiza el estado a "read"
       setTimeout(() => {
         setChats((prevChats) => {
           const msgs = prevChats[selectedContact] || [];
@@ -76,11 +77,50 @@ function App() {
     }
   };
 
+  // Función para alternar el estado de favorito de un contacto y mostrar notificación
+  const handleToggleFavorite = (contactName) => {
+    setContacts((prevContacts) =>
+      prevContacts.map((contact) => {
+        if (contact.name === contactName) {
+          const newFav = !contact.favorite;
+          alert(`Contacto ${contactName} ${newFav ? 'marcado como favorito' : 'desmarcado de favoritos'}`);
+          return { ...contact, favorite: newFav };
+        }
+        return contact;
+      })
+    );
+  };
+
+  // Función para archivar o desarchivar un contacto y notificar la acción.
+  // Además, si el contacto archivado era el seleccionado, se actualiza la selección.
+  const handleToggleArchive = (contactName) => {
+    setContacts((prevContacts) => {
+      const updatedContacts = prevContacts.map((contact) => {
+        if (contact.name === contactName) {
+          const newArchived = !contact.archived;
+          alert(`Contacto ${contactName} ${newArchived ? 'archivado' : 'desarchivado'}`);
+          return { ...contact, archived: newArchived };
+        }
+        return contact;
+      });
+      // Si el contacto archivado estaba seleccionado, se actualiza la selección
+      const archivedContact = updatedContacts.find((c) => c.name === contactName);
+      if (archivedContact && archivedContact.archived && selectedContact === contactName) {
+        const activeContacts = updatedContacts.filter((c) => !c.archived);
+        setSelectedContact(activeContacts.length ? activeContacts[0].name : '');
+      }
+      return updatedContacts;
+    });
+  };
+
   return (
     <div className="app-container">
-      {/* Panel lateral de chats */}
-      <ChatList contacts={contacts} setSelectedContact={setSelectedContact} />
-      {/* Panel del chat */}
+      <ChatList
+        contacts={contacts}
+        setSelectedContact={setSelectedContact}
+        handleToggleFavorite={handleToggleFavorite}
+        handleToggleArchive={handleToggleArchive}
+      />
       <div className="chat-panel">
         <ChatWindow
           messages={chats[selectedContact] || []}
