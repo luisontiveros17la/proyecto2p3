@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import './ChatList.css';
 // Importamos los íconos
-import { FiSettings } from 'react-icons/fi';
+import { FiSettings, FiPlus } from 'react-icons/fi';
 import { MdDonutLarge } from 'react-icons/md';
 import { BsArchiveFill } from 'react-icons/bs';
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
@@ -13,19 +13,27 @@ function ChatList({
   setSelectedContact,
   handleToggleFavorite,
   handleToggleArchive,
+  handleAddContact,
+  handleCreateGroup,
 }) {
   const [search, setSearch] = useState('');
-  // Estado para el filtro: 'none' (normal), 'archived' o 'favorites'
+  // Estado para el filtro: 'none', 'archived' o 'favorites'
   const [filterMode, setFilterMode] = useState('none');
-  // Estado para mostrar u ocultar el menú de configuración
+  // Estado para mostrar/ocultar el menú de configuración
   const [showSettings, setShowSettings] = useState(false);
+  // Estado para mostrar/ocultar el menú del botón “+”
+  const [showPlusMenu, setShowPlusMenu] = useState(false);
+  // Estado para mostrar el formulario de creación de grupo
+  const [showGroupForm, setShowGroupForm] = useState(false);
+  // Estado para almacenar la selección de contactos para el grupo (objeto: nombre => boolean)
+  const [groupSelection, setGroupSelection] = useState({});
+  // Estado para almacenar el nombre que se le dará al grupo
+  const [groupName, setGroupName] = useState('');
 
-  // Filtrado por búsqueda:
+  // Filtrado de contactos por búsqueda
   let filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(search.toLowerCase())
   );
-
-  // Se aplica el filtro según el modo seleccionado:
   if (filterMode === 'archived') {
     filteredContacts = filteredContacts.filter((contact) => contact.archived);
   } else if (filterMode === 'favorites') {
@@ -33,46 +41,77 @@ function ChatList({
       (contact) => contact.favorite && !contact.archived
     );
   } else {
-    // Modo normal: mostrar sólo contactos no archivados.
-    filteredContacts = filteredContacts.filter(
-      (contact) => !contact.archived
-    );
+    filteredContacts = filteredContacts.filter((contact) => !contact.archived);
   }
 
-  // Funciones para alternar el filtro en el footer
   const toggleArchiveFilter = () => {
-    setFilterMode((prevMode) =>
-      prevMode === 'archived' ? 'none' : 'archived'
-    );
-    // Cerrar el menú de configuración si estuviera abierto
+    setFilterMode((prev) => (prev === 'archived' ? 'none' : 'archived'));
     setShowSettings(false);
   };
 
   const toggleFavoriteFilter = () => {
-    setFilterMode((prevMode) =>
-      prevMode === 'favorites' ? 'none' : 'favorites'
-    );
+    setFilterMode((prev) => (prev === 'favorites' ? 'none' : 'favorites'));
     setShowSettings(false);
   };
 
-  // Función para alternar el menú de configuración
   const toggleSettings = () => {
     setShowSettings((prev) => !prev);
-    // Al abrir el menú, reiniciamos el filtro (opcional)
-    // setFilterMode('none');
+    setShowPlusMenu(false);
   };
 
-  // Función para "cerrar sesión". Se intenta cerrar la ventana.
-  const handleLogout = () => {
-    // Intenta cerrar la ventana; si no es posible, redirige a una página en blanco.
-    window.close();
-    // Si window.close() no funciona (por restricciones del navegador), también se puede:
-    // window.location.href = 'about:blank';
+  const togglePlusMenu = () => {
+    setShowPlusMenu((prev) => !prev);
+    setShowSettings(false);
   };
 
-  // Función para manejar opciones no implementadas
-  const handleNotImplemented = (option) => {
-    alert(`La opción ${option} no está implementada todavía.`);
+  const handleAddContactClick = () => {
+    setShowPlusMenu(false);
+    handleAddContact();
+  };
+
+  const handleCreateGroupClick = () => {
+    setShowPlusMenu(false);
+    // Inicializamos la selección del grupo con todos los contactos no archivados en false
+    const selection = {};
+    contacts.forEach((contact) => {
+      if (!contact.archived) {
+        selection[contact.name] = false;
+      }
+    });
+    setGroupSelection(selection);
+    setGroupName('');
+    setShowGroupForm(true);
+  };
+
+  const handleGroupCheckboxChange = (contactName) => {
+    setGroupSelection((prev) => ({
+      ...prev,
+      [contactName]: !prev[contactName],
+    }));
+  };
+
+  const submitGroupCreation = () => {
+    if (!groupName.trim()) {
+      alert('Ingrese un nombre para el grupo.');
+      return;
+    }
+    const selectedNames = Object.keys(groupSelection).filter(
+      (name) => groupSelection[name]
+    );
+    if (selectedNames.length === 0) {
+      alert('Seleccione al menos un contacto para crear el grupo.');
+      return;
+    }
+    handleCreateGroup(groupName, selectedNames);
+    setShowGroupForm(false);
+    setGroupSelection({});
+    setGroupName('');
+  };
+
+  const cancelGroupCreation = () => {
+    setShowGroupForm(false);
+    setGroupSelection({});
+    setGroupName('');
   };
 
   return (
@@ -84,7 +123,21 @@ function ChatList({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <button className="plus-btn" onClick={togglePlusMenu}>
+          <FiPlus />
+        </button>
+        {showPlusMenu && (
+          <div className="plus-menu">
+            <div className="plus-menu-item" onClick={handleAddContactClick}>
+              Agregar contacto
+            </div>
+            <div className="plus-menu-item" onClick={handleCreateGroupClick}>
+              Crear grupo
+            </div>
+          </div>
+        )}
       </div>
+
       <div className="contact-list">
         {filteredContacts.map((contact, idx) => (
           <div
@@ -124,79 +177,121 @@ function ChatList({
         ))}
       </div>
 
-      {/* Menú de configuración */}
+      {showGroupForm && (
+        <div className="group-form">
+          <h4>Crear Grupo</h4>
+          <input
+            type="text"
+            className="group-name-input"
+            placeholder="Nombre del grupo"
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+          />
+          <div className="group-contacts">
+            {contacts
+              .filter((contact) => !contact.archived)
+              .map((contact, idx) => (
+                <div key={idx} className="group-contact-item">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={groupSelection[contact.name] || false}
+                      onChange={() => handleGroupCheckboxChange(contact.name)}
+                    />
+                    {contact.name}
+                  </label>
+                </div>
+              ))}
+          </div>
+          <div className="group-form-buttons">
+            <button onClick={submitGroupCreation}>Crear grupo</button>
+            <button onClick={cancelGroupCreation}>Cancelar</button>
+          </div>
+        </div>
+      )}
+
       {showSettings && (
         <div className="settings-menu">
           <div
             className="settings-menu-item"
-            onClick={() => handleNotImplemented('Cuenta')}
+            onClick={() => alert('Cuenta no implementada')}
           >
             Cuenta
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => handleNotImplemented('Chats')}
+            onClick={() => alert('Chats no implementados')}
           >
             Chats
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => handleNotImplemented('Audio y Video')}
+            onClick={() => alert('Audio y Video no implementados')}
           >
             Audio y Video
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => handleNotImplemented('Notificaciones')}
+            onClick={() => alert('Notificaciones no implementadas')}
           >
             Notificaciones
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => handleNotImplemented('Personalización de chats')}
+            onClick={() =>
+              alert('Personalización de chats no implementada')
+            }
           >
             Personalización de chats
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => handleNotImplemented('Almacenamiento')}
+            onClick={() => alert('Almacenamiento no implementado')}
           >
             Almacenamiento
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => handleNotImplemented('Atajos')}
+            onClick={() => alert('Atajos no implementados')}
           >
             Atajos
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => handleNotImplemented('Ayuda')}
+            onClick={() => alert('Ayuda no implementada')}
           >
             Ayuda
           </div>
           <div
             className="settings-menu-item logout"
-            onClick={handleLogout}
+            onClick={() => {
+              window.close();
+              // o window.location.href = 'about:blank';
+            }}
           >
             Cerrar sesión
           </div>
         </div>
       )}
 
-      {/* Footer con iconos (configuración, estado, filtro archivados y filtro favoritos) */}
       <div className="chat-list-footer">
         <button className="footer-icon" onClick={toggleSettings}>
           <FiSettings />
         </button>
-        <button className="footer-icon" onClick={() => { setShowSettings(false); }}>
+        <button
+          className="footer-icon"
+          onClick={() => setShowSettings(false)}
+        >
           <MdDonutLarge />
         </button>
         <button
           className={`footer-icon ${
             filterMode === 'archived' ? 'active' : ''
           }`}
-          onClick={toggleArchiveFilter}
+          onClick={() => {
+            setShowSettings(false);
+            toggleArchiveFilter();
+          }}
         >
           <BsArchiveFill />
         </button>
@@ -204,7 +299,10 @@ function ChatList({
           className={`footer-icon ${
             filterMode === 'favorites' ? 'active' : ''
           }`}
-          onClick={toggleFavoriteFilter}
+          onClick={() => {
+            setShowSettings(false);
+            toggleFavoriteFilter();
+          }}
         >
           <AiFillStar />
         </button>

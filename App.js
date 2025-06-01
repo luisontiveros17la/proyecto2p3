@@ -10,14 +10,14 @@ import './App.css';
 const socket = io('http://localhost:5000');
 const userId = uuidv4();
 
-// Definimos los contactos iniciales con sus propiedades
+// Contactos iniciales
 const initialContacts = [
   { name: 'Contacto 1', favorite: false, archived: false },
   { name: 'Contacto 2', favorite: false, archived: false },
   { name: 'Contacto 3', favorite: false, archived: false },
 ];
 
-// Estado simulado de "En línea" o "Desconectado" para cada contacto
+// Estados simulados de cada contacto
 const contactStatuses = {
   'Contacto 1': true,
   'Contacto 2': false,
@@ -31,16 +31,13 @@ function App() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    // Escucha de mensajes recibidos vía Socket.io
     socket.on('message', ({ contact, msg }) => {
       setChats((prevChats) => {
         const currentMessages = prevChats[contact] || [];
-        // Evitamos duplicados comprobando por id
         if (currentMessages.some((m) => m.id === msg.id)) return prevChats;
         return { ...prevChats, [contact]: [...currentMessages, msg] };
       });
     });
-
     return () => {
       socket.off('message');
     };
@@ -57,7 +54,7 @@ function App() {
       });
       setMessage('');
 
-      // Simulación: Actualización del estado del mensaje
+      // Simulación de actualización de estado
       setTimeout(() => {
         setChats((prevChats) => {
           const msgs = prevChats[selectedContact] || [];
@@ -77,7 +74,7 @@ function App() {
     }
   };
 
-  // Función para alternar el estado de favorito de un contacto y mostrar notificación
+  // Alterna favorito
   const handleToggleFavorite = (contactName) => {
     setContacts((prevContacts) =>
       prevContacts.map((contact) => {
@@ -91,8 +88,7 @@ function App() {
     );
   };
 
-  // Función para archivar o desarchivar un contacto y notificar la acción.
-  // Además, si el contacto archivado era el seleccionado, se actualiza la selección.
+  // Archiva o desarchiva un contacto
   const handleToggleArchive = (contactName) => {
     setContacts((prevContacts) => {
       const updatedContacts = prevContacts.map((contact) => {
@@ -103,14 +99,35 @@ function App() {
         }
         return contact;
       });
-      // Si el contacto archivado estaba seleccionado, se actualiza la selección
-      const archivedContact = updatedContacts.find((c) => c.name === contactName);
-      if (archivedContact && archivedContact.archived && selectedContact === contactName) {
+      if (updatedContacts.find((c) => c.name === contactName)?.archived && selectedContact === contactName) {
         const activeContacts = updatedContacts.filter((c) => !c.archived);
         setSelectedContact(activeContacts.length ? activeContacts[0].name : '');
       }
       return updatedContacts;
     });
+  };
+
+  // Función para agregar nuevo contacto (se mantiene igual)
+  const handleAddContact = () => {
+    const newName = prompt('Ingrese el nombre del nuevo contacto:');
+    if (newName && newName.trim()) {
+      setContacts((prev) => [...prev, { name: newName.trim(), favorite: false, archived: false }]);
+      alert(`Contacto ${newName.trim()} agregado`);
+    }
+  };
+
+  // Actualizamos la función de crear grupo para que reciba el nombre del grupo y los contactos seleccionados
+  const handleCreateGroup = (groupName, selectedContacts) => {
+    if (!groupName.trim()) {
+      alert('Debe ingresar un nombre para el grupo.');
+      return;
+    }
+    if (selectedContacts.length === 0) {
+      alert('Seleccione al menos un contacto para crear un grupo.');
+      return;
+    }
+    setContacts((prev) => [...prev, { name: groupName.trim(), favorite: false, archived: false }]);
+    alert(`Grupo creado: ${groupName.trim()}`);
   };
 
   return (
@@ -120,6 +137,8 @@ function App() {
         setSelectedContact={setSelectedContact}
         handleToggleFavorite={handleToggleFavorite}
         handleToggleArchive={handleToggleArchive}
+        handleAddContact={handleAddContact}
+        handleCreateGroup={handleCreateGroup}
       />
       <div className="chat-panel">
         <ChatWindow

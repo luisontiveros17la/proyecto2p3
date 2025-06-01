@@ -6,21 +6,58 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  position: relative; /* Para posicionar el menú de configuración */
+  position: relative;
 }
 
 .chat-list-header {
   padding: 10px;
   border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  position: relative;
 }
 
 .chat-list-header input {
-  width: 100%;
+  flex: 1;
   padding: 8px 12px;
   border-radius: 20px;
   border: none;
   background-color: #e9edef;
   outline: none;
+}
+
+.plus-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #555;
+  margin-left: 8px;
+}
+
+.plus-menu {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  border-radius: 8px;
+  z-index: 200;
+  width: 200px;
+}
+
+.plus-menu-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.plus-menu-item:hover {
+  background-color: #f0f0f0;
+}
+
+.plus-menu-item:last-child {
+  border-bottom: none;
 }
 
 .contact-list {
@@ -90,12 +127,11 @@
   color: #000;
 }
 
-/* Indicador visual para filtro activo */
 .footer-icon.active {
   color: #128C7E;
 }
 
-/* Menú de configuración (se muestra al presionar el ícono de settings) */
+/* Menú de configuración */
 .settings-menu {
   position: absolute;
   bottom: 60px;
@@ -120,8 +156,67 @@
   transition: background-color 0.2s;
 }
 
-/* Para diferenciar el item de cerrar sesión */
 .settings-menu-item.logout {
   color: red;
   font-weight: bold;
+}
+
+/* Formulario de creación de grupo */
+.group-form {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  width: 280px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  z-index: 300;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.group-form h4 {
+  margin: 0 0 10px;
+  text-align: center;
+}
+
+.group-name-input {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.group-contacts {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.group-contact-item {
+  margin-bottom: 8px;
+}
+
+.group-form-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.group-form-buttons button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.group-form-buttons button:first-child {
+  background-color: #128C7E;
+  color: #fff;
+}
+
+.group-form-buttons button:last-child {
+  background-color: #ddd;
+  color: #333;
 }
