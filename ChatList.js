@@ -17,20 +17,19 @@ function ChatList({
   handleCreateGroup,
 }) {
   const [search, setSearch] = useState('');
-  // Estado para el filtro: 'none', 'archived' o 'favorites'
   const [filterMode, setFilterMode] = useState('none');
-  // Estado para mostrar/ocultar el menú de configuración
   const [showSettings, setShowSettings] = useState(false);
-  // Estado para mostrar/ocultar el menú del botón “+”
   const [showPlusMenu, setShowPlusMenu] = useState(false);
-  // Estado para mostrar el formulario de creación de grupo
+
+  // Nuevos estados para agregar contacto
+  const [showAddContactForm, setShowAddContactForm] = useState(false);
+  const [newContactName, setNewContactName] = useState('');
+
+  // Estados para crear grupo (ya existentes)
   const [showGroupForm, setShowGroupForm] = useState(false);
-  // Estado para almacenar la selección de contactos para el grupo (objeto: nombre => boolean)
   const [groupSelection, setGroupSelection] = useState({});
-  // Estado para almacenar el nombre que se le dará al grupo
   const [groupName, setGroupName] = useState('');
 
-  // Filtrado de contactos por búsqueda
   let filteredContacts = contacts.filter((contact) =>
     contact.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -64,14 +63,29 @@ function ChatList({
     setShowSettings(false);
   };
 
+  // Al presionar "Agregar contacto" en el plus menu, mostramos el formulario en lugar de llamar directamente
   const handleAddContactClick = () => {
     setShowPlusMenu(false);
-    handleAddContact();
+    setShowAddContactForm(true);
+  };
+
+  const submitAddContact = () => {
+    if (!newContactName.trim()) {
+      alert('Ingrese el nombre del contacto.');
+      return;
+    }
+    handleAddContact(newContactName);
+    setShowAddContactForm(false);
+    setNewContactName('');
+  };
+
+  const cancelAddContact = () => {
+    setShowAddContactForm(false);
+    setNewContactName('');
   };
 
   const handleCreateGroupClick = () => {
     setShowPlusMenu(false);
-    // Inicializamos la selección del grupo con todos los contactos no archivados en false
     const selection = {};
     contacts.forEach((contact) => {
       if (!contact.archived) {
@@ -137,6 +151,23 @@ function ChatList({
           </div>
         )}
       </div>
+
+      {/* Formulario para agregar un nuevo contacto */}
+      {showAddContactForm && (
+        <div className="add-contact-form">
+          <h4>Agregar Contacto</h4>
+          <input
+            type="text"
+            placeholder="Nombre del contacto"
+            value={newContactName}
+            onChange={(e) => setNewContactName(e.target.value)}
+          />
+          <div className="form-buttons">
+            <button onClick={submitAddContact}>Agregar</button>
+            <button onClick={cancelAddContact}>Cancelar</button>
+          </div>
+        </div>
+      )}
 
       <div className="contact-list">
         {filteredContacts.map((contact, idx) => (

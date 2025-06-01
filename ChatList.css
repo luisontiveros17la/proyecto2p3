@@ -60,6 +60,55 @@
   border-bottom: none;
 }
 
+.add-contact-form {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  width: 280px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  z-index: 300;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.add-contact-form h4 {
+  margin: 0 0 10px;
+  text-align: center;
+}
+
+.add-contact-form input {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.form-buttons button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.form-buttons button:first-child {
+  background-color: #128C7E;
+  color: #fff;
+}
+
+.form-buttons button:last-child {
+  background-color: #ddd;
+  color: #333;
+}
+
 .contact-list {
   flex: 1;
   overflow-y: auto;

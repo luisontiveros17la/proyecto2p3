@@ -1,10 +1,12 @@
 // src/App.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 import ChatList from './components/ChatList';
 import ChatWindow from './components/ChatWindow';
 import ChatInput from './components/ChatInput';
+import Notification from './components/Notification';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
 const socket = io('http://localhost:5000');
@@ -17,7 +19,7 @@ const initialContacts = [
   { name: 'Contacto 3', favorite: false, archived: false },
 ];
 
-// Estados simulados de cada contacto
+// Estado simulado de conexión de cada contacto
 const contactStatuses = {
   'Contacto 1': true,
   'Contacto 2': false,
@@ -29,6 +31,15 @@ function App() {
   const [selectedContact, setSelectedContact] = useState(initialContacts[0].name);
   const [chats, setChats] = useState({});
   const [message, setMessage] = useState('');
+  const [notification, setNotification] = useState({
+    message: '',
+    type: 'info',
+    visible: false,
+  });
+
+  const showNotification = useCallback((msg, type = 'info') => {
+    setNotification({ message: msg, type, visible: true });
+  }, []);
 
   useEffect(() => {
     socket.on('message', ({ contact, msg }) => {
@@ -45,7 +56,10 @@ function App() {
 
   const sendMessage = () => {
     if (message.trim()) {
-      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const time = new Date().toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
       const newMsg = { id: uuidv4(), userId, text: message, time, status: 'sent' };
       socket.emit('message', { contact: selectedContact, msg: newMsg });
       setChats((prevChats) => {
@@ -54,7 +68,7 @@ function App() {
       });
       setMessage('');
 
-      // Simulación de actualización de estado
+      // Simulación de actualización del estado del mensaje
       setTimeout(() => {
         setChats((prevChats) => {
           const msgs = prevChats[selectedContact] || [];
@@ -74,13 +88,15 @@ function App() {
     }
   };
 
-  // Alterna favorito
   const handleToggleFavorite = (contactName) => {
     setContacts((prevContacts) =>
       prevContacts.map((contact) => {
         if (contact.name === contactName) {
           const newFav = !contact.favorite;
-          alert(`Contacto ${contactName} ${newFav ? 'marcado como favorito' : 'desmarcado de favoritos'}`);
+          showNotification(
+            `Contacto ${contactName} ${newFav ? 'marcado como favorito' : 'desmarcado de favoritos'}`,
+            'success'
+          );
           return { ...contact, favorite: newFav };
         }
         return contact;
@@ -88,18 +104,23 @@ function App() {
     );
   };
 
-  // Archiva o desarchiva un contacto
   const handleToggleArchive = (contactName) => {
     setContacts((prevContacts) => {
       const updatedContacts = prevContacts.map((contact) => {
         if (contact.name === contactName) {
           const newArchived = !contact.archived;
-          alert(`Contacto ${contactName} ${newArchived ? 'archivado' : 'desarchivado'}`);
+          showNotification(
+            `Contacto ${contactName} ${newArchived ? 'archivado' : 'desarchivado'}`,
+            newArchived ? 'warning' : 'info'
+          );
           return { ...contact, archived: newArchived };
         }
         return contact;
       });
-      if (updatedContacts.find((c) => c.name === contactName)?.archived && selectedContact === contactName) {
+      if (
+        updatedContacts.find((c) => c.name === contactName)?.archived &&
+        selectedContact === contactName
+      ) {
         const activeContacts = updatedContacts.filter((c) => !c.archived);
         setSelectedContact(activeContacts.length ? activeContacts[0].name : '');
       }
@@ -107,31 +128,43 @@ function App() {
     });
   };
 
-  // Función para agregar nuevo contacto (se mantiene igual)
-  const handleAddContact = () => {
-    const newName = prompt('Ingrese el nombre del nuevo contacto:');
-    if (newName && newName.trim()) {
-      setContacts((prev) => [...prev, { name: newName.trim(), favorite: false, archived: false }]);
-      alert(`Contacto ${newName.trim()} agregado`);
+  // Ahora la función recibe el nombre del nuevo contacto
+  const handleAddContact = (newContactName) => {
+    if (newContactName && newContactName.trim()) {
+      setContacts((prev) => [
+        ...prev,
+        { name: newContactName.trim(), favorite: false, archived: false },
+      ]);
+      showNotification(`Contacto ${newContactName.trim()} agregado`, 'success');
     }
   };
 
-  // Actualizamos la función de crear grupo para que reciba el nombre del grupo y los contactos seleccionados
   const handleCreateGroup = (groupName, selectedContacts) => {
     if (!groupName.trim()) {
-      alert('Debe ingresar un nombre para el grupo.');
+      showNotification('Debe ingresar un nombre para el grupo.', 'danger');
       return;
     }
     if (selectedContacts.length === 0) {
-      alert('Seleccione al menos un contacto para crear un grupo.');
+      showNotification('Seleccione al menos un contacto para crear un grupo.', 'danger');
       return;
     }
-    setContacts((prev) => [...prev, { name: groupName.trim(), favorite: false, archived: false }]);
-    alert(`Grupo creado: ${groupName.trim()}`);
+    setContacts((prev) => [
+      ...prev,
+      { name: groupName.trim(), favorite: false, archived: false },
+    ]);
+    showNotification(`Grupo creado: ${groupName.trim()}`, 'success');
   };
 
   return (
     <div className="app-container">
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        visible={notification.visible}
+        onClose={() =>
+          setNotification((prev) => ({ ...prev, visible: false }))
+        }
+      />
       <ChatList
         contacts={contacts}
         setSelectedContact={setSelectedContact}
@@ -147,7 +180,11 @@ function App() {
           contactName={selectedContact}
           status={contactStatuses[selectedContact] ? 'En línea' : 'Desconectado'}
         />
-        <ChatInput message={message} setMessage={setMessage} sendMessage={sendMessage} />
+        <ChatInput
+          message={message}
+          setMessage={setMessage}
+          sendMessage={sendMessage}
+        />
       </div>
     </div>
   );
