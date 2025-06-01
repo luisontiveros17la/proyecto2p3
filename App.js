@@ -1,4 +1,3 @@
-// src/App.js
 import React, { useState, useEffect, useCallback } from 'react';
 import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
@@ -8,6 +7,7 @@ import ChatInput from './components/ChatInput';
 import Notification from './components/Notification';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import { MdBuild } from 'react-icons/md';
 
 const socket = io('http://localhost:5000');
 const userId = uuidv4();
@@ -19,7 +19,7 @@ const initialContacts = [
   { name: 'Contacto 3', favorite: false, archived: false },
 ];
 
-// Estado simulado de conexión de cada contacto
+// Estados simulados de conexión de cada contacto
 const contactStatuses = {
   'Contacto 1': true,
   'Contacto 2': false,
@@ -37,9 +37,21 @@ function App() {
     visible: false,
   });
 
+  // Función para mostrar notificaciones (usando Bootstrap)
   const showNotification = useCallback((msg, type = 'info') => {
     setNotification({ message: msg, type, visible: true });
   }, []);
+
+  // Función para las opciones no implementadas (mostrando un ícono de mantenimiento y texto en rojo)
+  const handleNotImplemented = (option) => {
+    showNotification(
+      <span>
+        <MdBuild style={{ marginRight: '5px' }} />
+        La opción "{option}" no está disponible en este momento.
+      </span>,
+      'danger'
+    );
+  };
 
   useEffect(() => {
     socket.on('message', ({ contact, msg }) => {
@@ -68,7 +80,7 @@ function App() {
       });
       setMessage('');
 
-      // Simulación de actualización del estado del mensaje
+      // Simulación: Actualización del estado del mensaje a "delivered" y "read"
       setTimeout(() => {
         setChats((prevChats) => {
           const msgs = prevChats[selectedContact] || [];
@@ -128,7 +140,7 @@ function App() {
     });
   };
 
-  // Ahora la función recibe el nombre del nuevo contacto
+  // Función actualizada para agregar un nuevo contacto (recibe el nombre)
   const handleAddContact = (newContactName) => {
     if (newContactName && newContactName.trim()) {
       setContacts((prev) => [
@@ -139,6 +151,7 @@ function App() {
     }
   };
 
+  // Función para crear grupo que recibe el nombre del grupo y los contactos seleccionados
   const handleCreateGroup = (groupName, selectedContacts) => {
     if (!groupName.trim()) {
       showNotification('Debe ingresar un nombre para el grupo.', 'danger');
@@ -157,14 +170,6 @@ function App() {
 
   return (
     <div className="app-container">
-      <Notification
-        message={notification.message}
-        type={notification.type}
-        visible={notification.visible}
-        onClose={() =>
-          setNotification((prev) => ({ ...prev, visible: false }))
-        }
-      />
       <ChatList
         contacts={contacts}
         setSelectedContact={setSelectedContact}
@@ -172,6 +177,7 @@ function App() {
         handleToggleArchive={handleToggleArchive}
         handleAddContact={handleAddContact}
         handleCreateGroup={handleCreateGroup}
+        handleNotImplemented={handleNotImplemented}
       />
       <div className="chat-panel">
         <ChatWindow
@@ -186,6 +192,14 @@ function App() {
           sendMessage={sendMessage}
         />
       </div>
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        visible={notification.visible}
+        onClose={() =>
+          setNotification((prev) => ({ ...prev, visible: false }))
+        }
+      />
     </div>
   );
 }

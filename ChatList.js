@@ -15,17 +15,18 @@ function ChatList({
   handleToggleArchive,
   handleAddContact,
   handleCreateGroup,
+  handleNotImplemented,  // Recibida como prop
 }) {
   const [search, setSearch] = useState('');
   const [filterMode, setFilterMode] = useState('none');
   const [showSettings, setShowSettings] = useState(false);
   const [showPlusMenu, setShowPlusMenu] = useState(false);
 
-  // Nuevos estados para agregar contacto
+  // Estados para "Agregar Contacto"
   const [showAddContactForm, setShowAddContactForm] = useState(false);
   const [newContactName, setNewContactName] = useState('');
 
-  // Estados para crear grupo (ya existentes)
+  // Estados para crear grupo
   const [showGroupForm, setShowGroupForm] = useState(false);
   const [groupSelection, setGroupSelection] = useState({});
   const [groupName, setGroupName] = useState('');
@@ -63,7 +64,6 @@ function ChatList({
     setShowSettings(false);
   };
 
-  // Al presionar "Agregar contacto" en el plus menu, mostramos el formulario en lugar de llamar directamente
   const handleAddContactClick = () => {
     setShowPlusMenu(false);
     setShowAddContactForm(true);
@@ -152,7 +152,7 @@ function ChatList({
         )}
       </div>
 
-      {/* Formulario para agregar un nuevo contacto */}
+      {/* Formulario para agregar contacto */}
       {showAddContactForm && (
         <div className="add-contact-form">
           <h4>Agregar Contacto</h4>
@@ -245,51 +245,49 @@ function ChatList({
         <div className="settings-menu">
           <div
             className="settings-menu-item"
-            onClick={() => alert('Cuenta no implementada')}
+            onClick={() => handleNotImplemented('Cuenta')}
           >
             Cuenta
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => alert('Chats no implementados')}
+            onClick={() => handleNotImplemented('Chats')}
           >
             Chats
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => alert('Audio y Video no implementados')}
+            onClick={() => handleNotImplemented('Audio y Video')}
           >
             Audio y Video
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => alert('Notificaciones no implementadas')}
+            onClick={() => handleNotImplemented('Notificaciones')}
           >
             Notificaciones
           </div>
           <div
             className="settings-menu-item"
-            onClick={() =>
-              alert('Personalización de chats no implementada')
-            }
+            onClick={() => handleNotImplemented('Personalización de chats')}
           >
             Personalización de chats
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => alert('Almacenamiento no implementado')}
+            onClick={() => handleNotImplemented('Almacenamiento')}
           >
             Almacenamiento
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => alert('Atajos no implementados')}
+            onClick={() => handleNotImplemented('Atajos')}
           >
             Atajos
           </div>
           <div
             className="settings-menu-item"
-            onClick={() => alert('Ayuda no implementada')}
+            onClick={() => handleNotImplemented('Ayuda')}
           >
             Ayuda
           </div>
