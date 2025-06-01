@@ -3,78 +3,90 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
+  /* Fondo similar al de WhatsApp Web (se usa la imagen oficial de fondo) */
+  background-image: url('https://web.whatsapp.com/img/bg-chat.027f66a3d325adafa9ea.jpg');
+  background-size: cover;
+  background-position: center;
+  position: relative;
 }
 
 .chat-header {
-  padding: 15px;
+  padding: 16px;
   background-color: #075E54;
   color: #fff;
-  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-.chat-header-info {
+.header-info {
   display: flex;
   flex-direction: column;
 }
 
-.contact-status {
-  font-size: 0.9rem;
-  color: #c2e0c6;
+.contact-name {
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
-.chat-messages {
+.contact-status {
+  font-size: 0.85rem;
+  color: #d0f0c0;
+  margin-top: 4px;
+}
+
+.chat-content {
   flex: 1;
-  padding: 15px;
-  background-color: #e5ddd5;
+  padding: 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
 
-.message {
-  margin-bottom: 15px;
+.chat-bubble {
   max-width: 70%;
+  margin-bottom: 10px;
   padding: 10px 15px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 7px;
   position: relative;
+  word-wrap: break-word;
 }
 
-.sent {
+.chat-bubble.sent {
   align-self: flex-end;
   background-color: #dcf8c6;
 }
 
-.received {
+.chat-bubble.received {
   align-self: flex-start;
-  background-color: #ffffff;
-  border: 1px solid #ccc;
+  background-color: #fff;
+  border: 1px solid #e3e3e3;
 }
 
-.message-info {
-  font-size: 0.75rem;
-  color: #555;
-  margin-top: 5px;
+.bubble-text {
+  font-size: 0.95rem;
+}
+
+.bubble-info {
   display: flex;
-  align-items: center;
   justify-content: flex-end;
+  align-items: center;
+  margin-top: 5px;
+  font-size: 0.75rem;
+  color: gray;
 }
 
-.message-status {
-  margin-left: 10px;
+.bubble-status {
+  margin-left: 5px;
 }
 
 .check {
-  font-size: 1em;
+  font-size: 0.85rem;
 }
 
-.sent-check {
-  color: grey;
-}
-
+.sent-check,
 .delivered-check {
-  color: grey;
+  color: gray;
 }
 
 .read-check {

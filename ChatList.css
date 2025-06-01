@@ -1,29 +1,48 @@
 /* src/components/ChatList.css */
 .chat-list {
-  padding: 10px;
-  height: 100vh;
-  overflow-y: auto;
+  width: 320px;
   background-color: #f8f9fa;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
 }
 
-.chat-list-search {
-  margin-bottom: 10px;
+.chat-list-header {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
 }
 
-.chat-list-search input {
+.chat-list-header input {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  background-color: #e9edef;
+  outline: none;
+}
+
+.contact-list {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .chat-list-item {
+  display: flex;
+  align-items: center;
   padding: 10px;
-  border-bottom: 1px solid #ddd;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #eee;
 }
 
 .chat-list-item:hover {
-  background-color: #e9ecef;
+  background-color: #ebebeb;
+}
+
+.contact-info {
+  margin-left: 10px;
+}
+
+.contact-name {
+  font-weight: bold;
+  font-size: 1rem;
 }

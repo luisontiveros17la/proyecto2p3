@@ -2,32 +2,31 @@
 import React, { useState } from 'react';
 import './ChatList.css';
 
-function ChatList({ contactos, setSelectedChat }) {
-  const [search, setSearch] = useState("");
-
-  const filteredContacts = contactos.filter(contact =>
-    contact.toLowerCase().includes(search.toLowerCase())
+function ChatList({ contacts, setSelectedContact }) {
+  const [search, setSearch] = useState('');
+  const filteredContacts = contacts.filter((c) =>
+    c.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="chat-list">
-      <div className="chat-list-search">
-        <input 
-          type="text" 
-          placeholder="Buscar contacto..." 
+      <div className="chat-list-header">
+        <input
+          type="text"
+          placeholder="Buscar o empezar un chat"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-      {filteredContacts.map((contact, index) => (
-        <div 
-          key={index} 
-          className="chat-list-item" 
-          onClick={() => setSelectedChat(contact)}
-        >
-          {contact}
-        </div>
-      ))}
+      <div className="contact-list">
+        {filteredContacts.map((contact, idx) => (
+          <div key={idx} className="chat-list-item" onClick={() => setSelectedContact(contact)}>
+            <div className="contact-info">
+              <span className="contact-name">{contact}</span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
