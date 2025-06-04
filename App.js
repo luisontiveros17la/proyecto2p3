@@ -9,7 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import { MdBuild } from 'react-icons/md';
 
-const socket = io('http://localhost:5000');
+const socket = io('http://192.168.0.124:5000'); // Se conecta a la IP proporcionada
 const userId = uuidv4();
 
 // Contactos iniciales
@@ -19,7 +19,7 @@ const initialContacts = [
   { name: 'Contacto 3', favorite: false, archived: false },
 ];
 
-// Estados simulados de conexión de cada contacto
+// Estados simulados de conexión ("En línea" o "Desconectado")
 const contactStatuses = {
   'Contacto 1': true,
   'Contacto 2': false,
@@ -31,68 +31,51 @@ function App() {
   const [selectedContact, setSelectedContact] = useState(initialContacts[0].name);
   const [chats, setChats] = useState({});
   const [message, setMessage] = useState('');
-  const [notification, setNotification] = useState({
-    message: '',
-    type: 'info',
-    visible: false,
-  });
+  const [notification, setNotification] = useState({ message: '', type: 'info', visible: false });
+  
+  // Estado de los modales
+  const [editModal, setEditModal] = useState({ show: false, tempName: '', originalName: '' });
+  const [addContactModal, setAddContactModal] = useState({ show: false, contactName: '' });
+  const [createGroupModal, setCreateGroupModal] = useState({ show: false, groupName: '', selections: {} });
 
-  // Función para mostrar notificaciones (usando Bootstrap)
+  // Función para mostrar notificaciones
   const showNotification = useCallback((msg, type = 'info') => {
     setNotification({ message: msg, type, visible: true });
   }, []);
 
-  // Función para las opciones no implementadas (mostrando un ícono de mantenimiento y texto en rojo)
-  const handleNotImplemented = (option) => {
-    showNotification(
-      <span>
-        <MdBuild style={{ marginRight: '5px' }} />
-        La opción "{option}" no está disponible en este momento.
-      </span>,
-      'danger'
-    );
-  };
-
   useEffect(() => {
     socket.on('message', ({ contact, msg }) => {
-      setChats((prevChats) => {
+      setChats(prevChats => {
         const currentMessages = prevChats[contact] || [];
-        if (currentMessages.some((m) => m.id === msg.id)) return prevChats;
+        if (currentMessages.some(m => m.id === msg.id)) return prevChats;
         return { ...prevChats, [contact]: [...currentMessages, msg] };
       });
     });
-    return () => {
-      socket.off('message');
-    };
+    return () => socket.off('message');
   }, []);
 
   const sendMessage = () => {
     if (message.trim()) {
-      const time = new Date().toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const newMsg = { id: uuidv4(), userId, text: message, time, status: 'sent' };
       socket.emit('message', { contact: selectedContact, msg: newMsg });
-      setChats((prevChats) => {
+      setChats(prevChats => {
         const msgs = prevChats[selectedContact] || [];
         return { ...prevChats, [selectedContact]: [...msgs, newMsg] };
       });
       setMessage('');
-
-      // Simulación: Actualización del estado del mensaje a "delivered" y "read"
       setTimeout(() => {
-        setChats((prevChats) => {
+        setChats(prevChats => {
           const msgs = prevChats[selectedContact] || [];
-          if (msgs.length === 0) return prevChats;
+          if (!msgs.length) return prevChats;
           msgs[msgs.length - 1].status = 'delivered';
           return { ...prevChats, [selectedContact]: [...msgs] };
         });
       }, 2000);
       setTimeout(() => {
-        setChats((prevChats) => {
+        setChats(prevChats => {
           const msgs = prevChats[selectedContact] || [];
-          if (msgs.length === 0) return prevChats;
+          if (!msgs.length) return prevChats;
           msgs[msgs.length - 1].status = 'read';
           return { ...prevChats, [selectedContact]: [...msgs] };
         });
@@ -100,84 +83,13 @@ function App() {
     }
   };
 
-  const handleToggleFavorite = (contactName) => {
-    setContacts((prevContacts) =>
-      prevContacts.map((contact) => {
-        if (contact.name === contactName) {
-          const newFav = !contact.favorite;
-          showNotification(
-            `Contacto ${contactName} ${newFav ? 'marcado como favorito' : 'desmarcado de favoritos'}`,
-            'success'
-          );
-          return { ...contact, favorite: newFav };
-        }
-        return contact;
-      })
-    );
-  };
-
-  const handleToggleArchive = (contactName) => {
-    setContacts((prevContacts) => {
-      const updatedContacts = prevContacts.map((contact) => {
-        if (contact.name === contactName) {
-          const newArchived = !contact.archived;
-          showNotification(
-            `Contacto ${contactName} ${newArchived ? 'archivado' : 'desarchivado'}`,
-            newArchived ? 'warning' : 'info'
-          );
-          return { ...contact, archived: newArchived };
-        }
-        return contact;
-      });
-      if (
-        updatedContacts.find((c) => c.name === contactName)?.archived &&
-        selectedContact === contactName
-      ) {
-        const activeContacts = updatedContacts.filter((c) => !c.archived);
-        setSelectedContact(activeContacts.length ? activeContacts[0].name : '');
-      }
-      return updatedContacts;
-    });
-  };
-
-  // Función actualizada para agregar un nuevo contacto (recibe el nombre)
-  const handleAddContact = (newContactName) => {
-    if (newContactName && newContactName.trim()) {
-      setContacts((prev) => [
-        ...prev,
-        { name: newContactName.trim(), favorite: false, archived: false },
-      ]);
-      showNotification(`Contacto ${newContactName.trim()} agregado`, 'success');
-    }
-  };
-
-  // Función para crear grupo que recibe el nombre del grupo y los contactos seleccionados
-  const handleCreateGroup = (groupName, selectedContacts) => {
-    if (!groupName.trim()) {
-      showNotification('Debe ingresar un nombre para el grupo.', 'danger');
-      return;
-    }
-    if (selectedContacts.length === 0) {
-      showNotification('Seleccione al menos un contacto para crear un grupo.', 'danger');
-      return;
-    }
-    setContacts((prev) => [
-      ...prev,
-      { name: groupName.trim(), favorite: false, archived: false },
-    ]);
-    showNotification(`Grupo creado: ${groupName.trim()}`, 'success');
-  };
-
   return (
     <div className="app-container">
       <ChatList
         contacts={contacts}
         setSelectedContact={setSelectedContact}
-        handleToggleFavorite={handleToggleFavorite}
-        handleToggleArchive={handleToggleArchive}
-        handleAddContact={handleAddContact}
-        handleCreateGroup={handleCreateGroup}
-        handleNotImplemented={handleNotImplemented}
+        onShowAddContactModal={() => setAddContactModal({ show: true, contactName: '' })}
+        onShowCreateGroupModal={() => setCreateGroupModal({ show: true, groupName: '', selections: {} })}
       />
       <div className="chat-panel">
         <ChatWindow
@@ -185,21 +97,49 @@ function App() {
           userId={userId}
           contactName={selectedContact}
           status={contactStatuses[selectedContact] ? 'En línea' : 'Desconectado'}
+          setEditContactModal={setEditModal}
         />
-        <ChatInput
-          message={message}
-          setMessage={setMessage}
-          sendMessage={sendMessage}
-        />
+        <ChatInput message={message} setMessage={setMessage} sendMessage={sendMessage} />
       </div>
       <Notification
         message={notification.message}
         type={notification.type}
         visible={notification.visible}
-        onClose={() =>
-          setNotification((prev) => ({ ...prev, visible: false }))
-        }
+        onClose={() => setNotification(prev => ({ ...prev, visible: false }))}
       />
+
+      {/* Modal Editar Contacto */}
+      {editModal.show && (
+        <div className="modal fade show d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5>Editar Contacto</h5>
+                <button type="button" className="close" onClick={() => setEditModal({ show: false })}>
+                  <span>&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <input
+                  type="text"
+                  className="form-control"
+                  value={editModal.tempName}
+                  onChange={(e) => setEditModal({ ...editModal, tempName: e.target.value })}
+                />
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-primary" onClick={() => {
+                  setContacts(prevContacts => prevContacts.map(contact =>
+                    contact.name === editModal.originalName ? { ...contact, name: editModal.tempName.trim() } : contact));
+                  setSelectedContact(editModal.tempName.trim());
+                  setEditModal({ show: false });
+                }}>Guardar</button>
+                <button className="btn btn-secondary" onClick={() => setEditModal({ show: false })}>Cancelar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
