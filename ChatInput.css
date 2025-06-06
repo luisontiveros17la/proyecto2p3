@@ -1,4 +1,3 @@
-/* src/components/ChatInput.css */
 .chat-input {
   display: flex;
   align-items: center;
@@ -10,9 +9,8 @@
 .chat-input input {
   flex: 1;
   padding: 10px;
-  border: none;
+  border: 1px solid #ccc;
   border-radius: 18px;
-  background-color: #e9edef;
   outline: none;
 }
 
@@ -21,10 +19,10 @@
   padding: 10px 20px;
   background-color: #128C7E;
   border: none;
+  color: #fff;
   border-radius: 18px;
-  color: white;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease;
 }
 
 .chat-input button:hover {

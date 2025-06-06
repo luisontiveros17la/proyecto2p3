@@ -1,4 +1,3 @@
-// src/components/ChatInput.js
 import React from 'react';
 import './ChatInput.css';
 
@@ -13,7 +12,7 @@ function ChatInput({ message, setMessage, sendMessage }) {
     <div className="chat-input">
       <input
         type="text"
-        placeholder="Escribe un mensaje"
+        placeholder="Escribe un mensaje..."
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         onKeyPress={handleKeyPress}

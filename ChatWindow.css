@@ -1,22 +1,19 @@
-/* src/components/ChatWindow.css */
 .chat-window {
   flex: 1;
   display: flex;
   flex-direction: column;
-  /* Fondo similar al de WhatsApp Web (se usa la imagen oficial de fondo) */
-  background-image: url('https://web.whatsapp.com/img/bg-chat.027f66a3d325adafa9ea.jpg');
-  background-size: cover;
-  background-position: center;
-  position: relative;
+  overflow: hidden;
 }
 
-.chat-header {
+.chat-window-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 16px;
   background-color: #075E54;
   color: #fff;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(0,0,0,0.2);
+  position: relative;
 }
 
 .header-info {
@@ -25,42 +22,72 @@
 }
 
 .contact-name {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: bold;
 }
 
 .contact-status {
-  font-size: 0.85rem;
-  color: #d0f0c0;
-  margin-top: 4px;
+  font-size: 0.9rem;
+  color: #c2e0c6;
 }
 
-.chat-content {
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background-color: #fff;
+  color: #333;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  z-index: 100;
+  width: 220px;
+}
+
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.chat-window-messages {
   flex: 1;
-  padding: 20px;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  padding: 16px;
+  overflow-y: auto;
+  background-color: #f0f0f0;
 }
 
-.chat-bubble {
-  max-width: 70%;
+.message-bubble {
+  display: block;
   margin-bottom: 10px;
+  max-width: 70%;
+  width: auto;
   padding: 10px 15px;
-  border-radius: 7px;
-  position: relative;
+  border-radius: 10px;
+  background-color: #dcf8c6;
+  align-self: flex-end;
   word-wrap: break-word;
 }
 
-.chat-bubble.sent {
-  align-self: flex-end;
-  background-color: #dcf8c6;
-}
-
-.chat-bubble.received {
-  align-self: flex-start;
+.message-bubble.received {
   background-color: #fff;
-  border: 1px solid #e3e3e3;
+  align-self: flex-start;
 }
 
 .bubble-text {
@@ -68,23 +95,21 @@
 }
 
 .bubble-info {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 5px;
   font-size: 0.75rem;
+  text-align: right;
   color: gray;
-}
-
-.bubble-status {
-  margin-left: 5px;
+  margin-top: 5px;
 }
 
 .check {
-  font-size: 0.85rem;
+  margin-left: 5px;
+  font-size: 0.8rem;
 }
 
-.sent-check,
+.sent-check {
+  color: gray;
+}
+
 .delivered-check {
   color: gray;
 }
